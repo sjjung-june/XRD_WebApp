@@ -1,0 +1,32 @@
+* {
+  margin: 0px;
+}
+
+h1,
+form,
+#plots {
+  margin: 8px;
+}
+#Plots {
+  justify-content: space-between;
+  align-items: center;
+}
+
+#modify-button {
+  position: fixed;
+  right: 100px;
+  bottom: 20px;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.loading {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  cursor: progress;
+}
