@@ -1,15 +1,31 @@
 const DEFAULT_URL = "http://10.138.126.181:5000";
 const submitForm = document.querySelector("#submit-form");
+const yearInput = document.querySelector("#year-input");
+const monthInput = document.querySelector("#month-input");
 const submitInput = document.querySelector("#submit-input");
 const SNBrowser = document.querySelector("#sn-browsers");
 const fileBrowser = document.querySelector("#file-browsers");
 const fileInput = document.querySelector("#file-input");
 const modify_btn = document.querySelector("#modify-button");
+const monthBrowser = document.querySelector("#month-browsers");
 const reset_btn = document.querySelector("#reset-button");
 const plots_parent = document.querySelector("#plots-parent");
 const plots = document.querySelector("#plots");
 const STATUS = document.querySelector(".status");
 var Data;
+
+getDate();
+
+function getDate() {
+  Current_Date = new Date();
+  yearInput.value = Current_Date.getFullYear();
+
+  if (Current_Date.getMonth() < 9) {
+    monthInput.value = `0${Current_Date.getMonth() + 1}`;
+  } else {
+    monthInput.value = Current_Date.getMonth() + 1;
+  }
+}
 
 function handleSNSubmit(event) {
   event.preventDefault();
@@ -45,6 +61,8 @@ function handleSNSubmit(event) {
 
     let data = JSON.stringify({
       SN: `${submitInput.value}`,
+      YEAR: `${yearInput.value}`,
+      MONTH: `${monthInput.value}`,
     });
     xhr.send(data);
   }
@@ -142,7 +160,7 @@ function handleModify(event) {
   xhr.onload = function () {
     remove();
     modify_btn.classList.toggle("hidden");
-    console.log(xhr.response);
+    alert(xhr.response);
   };
 
   Files = [];
@@ -157,14 +175,17 @@ function handleModify(event) {
 
   let data = JSON.stringify({
     SN: submitInput.value,
+    YEAR: yearInput.value,
+    MONTH: monthInput.value,
     File: Files,
     Peaks_Pos: Peaks_Pos,
     Peaks_Height: Peaks_Height,
   });
 
   console.log(data);
+
   xhr.send(data);
-  alert("Wait a Moment!");
+  alert("결과가 전달되었습니다. 잠시만 기다려주세요.");
 }
 
 function handleReset() {
@@ -172,7 +193,53 @@ function handleReset() {
   modify_btn.classList.toggle("hidden");
 }
 
+function yearInit() {
+  yearInput.value = "";
+  monthInput.value = "";
+  submitInput.value = "";
+}
+
+function monthInit() {
+  monthInput.value = "";
+}
+
+function handleChange() {
+  let xhr = new XMLHttpRequest();
+  xhr.open("POST", `${DEFAULT_URL}/main`);
+  xhr.setRequestHeader("Accept", "application/json");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = function () {
+    Month_List = JSON.parse(xhr.response)["Month_List"];
+    SN_List = JSON.parse(xhr.response)["SN_List"];
+
+    Months = "";
+
+    for (var i = 0; i < Month_List.length; i++) {
+      Months += `<option value=${Month_List[i]}></option>`;
+    }
+    monthBrowser.innerHTML = Months;
+
+    SNs = "";
+
+    for (var i = 0; i < SN_List.length; i++) {
+      SNs += `<option value=${SN_List[i]}></option>`;
+    }
+    SNBrowser.innerHTML = SNs;
+  };
+
+  let data = JSON.stringify({
+    YEAR: yearInput.value,
+    MONTH: monthInput.value,
+  });
+
+  xhr.send(data);
+}
+
 submitForm.addEventListener("submit", handleSNSubmit);
 modify_btn.addEventListener("click", handleModify);
 reset_btn.addEventListener("click", handleReset);
 submitInput.addEventListener("click", handleClick);
+yearInput.addEventListener("click", yearInit);
+yearInput.addEventListener("change", handleChange);
+monthInput.addEventListener("click", monthInit);
+monthInput.addEventListener("change", handleChange);

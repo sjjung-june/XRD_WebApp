@@ -17,7 +17,21 @@
     <div id="title-div">
       <h1>XRD Grain Size Calculator Ver. 0.1</h1>
       <form id="submit-form">
-        <label for="myBrowser">Choose a SN:</label>
+        <label for="yearBrowser">Year</label>
+        <input id="year-input" list="year-browsers" name="yearBrowser" />
+        <datalist id="year-browsers">
+          {% for Year in Year_List %}
+          <option value="{{Year}}"></option>
+          {% endfor %}
+        </datalist>
+        <label for="monthBrowser">Month</label>
+        <input id="month-input" list="month-browsers" name="monthBrowser" />
+        <datalist id="month-browsers">
+          {% for Month in Month_List %}
+          <option value="{{Month}}"></option>
+          {% endfor %}
+        </datalist>
+        <label for="snBrowser">SN</label>
         <input id="submit-input" list="sn-browsers" name="snBrowser" />
         <datalist id="sn-browsers">
           {% for SN in SN_List %}

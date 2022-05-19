@@ -4,26 +4,40 @@ import os
 import re
 import pandas as pd
 from modules.calc import grain_size
+from datetime import date
 
-YEAR = 2022
-MONTH = 5
-DEFAULT_PATH = rf"\\10.138.112.112\Analysis Results\XRD\1_XRD\{YEAR}\{MONTH:02}"
+CURR_YEAR, CURR_MONTH, CURR_DATE = date.today().strftime('%Y-%m-%d').split('-')
+
+#DEFAULT_PATH = rf"\\10.138.112.112\Analysis Results\XRD\1_XRD\{YEAR}\{MONTH:02}"
+DEFAULT_PATH = rf"\\10.138.112.112\Analysis Results\XRD\1_XRD"
 app = Flask("XRD Grain Size")
 
 @app.route('/')
-def root(SN_List = None):    
-    SN_List = os.listdir(DEFAULT_PATH)        
-    return render_template('index.html', SN_List=SN_List)
+def root(Year_List = None, Month_List = None, SN_List = None):        
+    Year_List = [Year for Year in os.listdir(DEFAULT_PATH) if os.path.isdir(os.path.join(DEFAULT_PATH,Year)) and 'JCPDS' not in Year]
+    Month_List = [Month for Month in os.listdir(f'{DEFAULT_PATH}\{CURR_YEAR}')]
+    SN_List = [SN for SN in os.listdir(f'{DEFAULT_PATH}\{CURR_YEAR}\{CURR_MONTH}')]
+    return render_template('index.html', Year_List = Year_List, Month_List = Month_List, SN_List = SN_List)
+
+@app.route('/main', methods=['POST'])
+def main():    
+    Year_Query = request.get_json()["YEAR"]
+    Month_Query = request.get_json()["MONTH"]    
+    Month_List = [Month for Month in os.listdir(f'{DEFAULT_PATH}\{Year_Query}')]
+    SN_List = [SN for SN in os.listdir(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}')]
+    return {"Month_List":Month_List, "SN_List":SN_List}
 
 @app.route('/submit', methods=['POST'])
 def login(File_List = None):
     SN_Query = request.get_json()["SN"]    
-    File_List = os.listdir(f'{DEFAULT_PATH}\{SN_Query}')
+    Year_Query = request.get_json()["YEAR"]    
+    Month_Query = request.get_json()["MONTH"]    
+    File_List = os.listdir(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}')
     File_List = [x for x in File_List if ".txt" in x or ".TXT" in x]    
     Full_Dataset = {}
     Dataset = {}
     for file in File_List:
-        data_path = f'{DEFAULT_PATH}\{SN_Query}\{file}'    
+        data_path = f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\{file}'    
         df = pd.read_csv(data_path, header=2, sep="\t")    
         df.columns = ["Angle","Count"]
         Dataset[file] = {"Angle":df["Angle"].to_list(), "Count":df["Count"].to_list(), "Peaks_Pos":[], "Peaks_Height":[]}        
@@ -45,25 +59,15 @@ def plot():
 @app.route('/calc', methods=['POST'])   
 def calc():
     calc_query = request.get_json()
-    sn = calc_query["SN"]        
+    SN_Query = calc_query["SN"]        
+    Year_Query = calc_query["YEAR"]        
+    Month_Query = calc_query["MONTH"]        
     file_list = calc_query["File"]
     peak_pos = calc_query["Peaks_Pos"]
     peak_height = calc_query["Peaks_Height"]    
         
-    result = {}
-    for idx in range(len(file_list)):        
-        result[f'{file_list[idx]}'] = grain_size(sn, file_list[idx], peak_pos[idx], peak_height[idx])
-    
-    df_result = pd.DataFrame(columns=["File","FWHM","Grain Size","Peak"])
-    
-    for key in result.keys():
-        
-        df = pd.DataFrame(result[key])
-        df["File"] = key
-        df = df[["File","FWHM","Grain Size","Peak"]]
-        df_result = pd.concat([df_result,df])
-    
-    #df_result.to_csv(f'{DEFAULT_PATH}\{SN_Query})
-    return "Done"
+    result = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height)
+    result.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Grain_Size.csv',index=False)
+    return "Grain Size 계산 완료"
     
 app.run(host="10.138.126.181")
