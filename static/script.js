@@ -137,6 +137,7 @@ function remove() {
   document.getElementById("plots-parent").appendChild(div);
   submitInput.value = "";
 }
+
 function handleClick(event) {
   let current_value = document.querySelector(`#${event.path[0].id}`).value;
   if (current_value != "") {

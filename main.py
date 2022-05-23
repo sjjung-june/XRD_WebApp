@@ -34,6 +34,7 @@ def login(File_List = None):
     Month_Query = request.get_json()["MONTH"]    
     File_List = os.listdir(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}')
     File_List = [x for x in File_List if ".txt" in x or ".TXT" in x]    
+    File_List = [x for x in File_List if "2-ThetaChi_Phi" in x or "_Theta_2-Theta" in x]    
     Full_Dataset = {}
     Dataset = {}
     for file in File_List:
@@ -67,7 +68,7 @@ def calc():
     peak_height = calc_query["Peaks_Height"]    
         
     result = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height)
-    result.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Grain_Size.csv',index=False)
+    result.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\Grain_Size.csv',index=False)
     return "Grain Size 계산 완료"
     
 app.run(host="10.138.126.181")
