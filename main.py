@@ -2,6 +2,7 @@ from flask import Flask, request, render_template
 #import modules.inxrd_noqt, modules.outxrd_noqt
 import os
 import re
+import numpy as np
 import pandas as pd
 from modules.calc import grain_size
 from datetime import date
@@ -41,7 +42,7 @@ def login(File_List = None):
         data_path = f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\{file}'    
         df = pd.read_csv(data_path, header=2, sep="\t")    
         df.columns = ["Angle","Count"]
-        Dataset[file] = {"Angle":df["Angle"].to_list(), "Count":df["Count"].to_list(), "Peaks_Pos":[], "Peaks_Height":[]}        
+        Dataset[file] = {"Angle":df["Angle"].to_list(), "Count":df["Count"].to_list(), "Peaks_Pos":[], "Peaks_Height":[], "Peaks_Id":[]}        
     
     Full_Dataset[f'{SN_Query}'] = Dataset
     return Full_Dataset
@@ -65,10 +66,19 @@ def calc():
     Month_Query = calc_query["MONTH"]        
     file_list = calc_query["File"]
     peak_pos = calc_query["Peaks_Pos"]
-    peak_height = calc_query["Peaks_Height"]    
+    peak_height = calc_query["Peaks_Height"]
+    peak_id = calc_query["Peaks_Id"]
+    
+    Err_Return = ''
+    for i in range(len(peak_id)):        
+        if len(np.array(peak_id)[i][np.array(peak_id)[i]==True])<3:
+            Err_Return += f'{file_list[i]} : Peak Count {len(np.array(peak_id)[i][np.array(peak_id)[i]==True])}'
         
-    result = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height)
+    if Err_Return != "":
+        return Err_Return 
+    
+    result = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height, peak_id)
     result.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\Grain_Size.csv',index=False)
-    return "Grain Size 계산 완료"
+    return "Grain Size 계산 완료" 
     
 app.run(host="10.138.126.181")

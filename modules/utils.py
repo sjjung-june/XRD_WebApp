@@ -29,7 +29,14 @@ def Single_Voigt(x, alpha, gamma):
     return np.real(wofz((x + 1j*gamma)/sigma/np.sqrt(2))) / sigma/np.sqrt(2*np.pi)
 
 def VoigtMaker(peaknum):
-    if peaknum==8:
+    if peaknum==9:
+        def Voigt (x,expamp,expdec,a,b, cen1, ampV1,sigmaV1, gammaV1 , cen2, ampV2,sigmaV2, gammaV2 , cen3, ampV3,sigmaV3, gammaV3, cen4, ampV4,sigmaV4, gammaV4 , cen5, ampV5, sigmaV5, gammaV5, cen6, ampV6, sigmaV6, gammaV6 , cen7, ampV7, sigmaV7, gammaV7 , cen8, ampV8, sigmaV8, gammaV8, cen9, ampV9, sigmaV9, gammaV9):
+            return expamp*exp(-x/expdec) + a*x +b +\
+                   ampV1*  Single_Voigt(x-cen1,sigmaV1, gammaV1) + ampV2* Single_Voigt(x-cen2,sigmaV2, gammaV2) +ampV3* Single_Voigt(x-cen3,sigmaV3, gammaV3) +ampV4* Single_Voigt(x-cen4,sigmaV4, gammaV4) +\
+                   ampV5* Single_Voigt(x-cen5,sigmaV5, gammaV5) + ampV6* Single_Voigt(x-cen6,sigmaV6, gammaV6) +ampV7* Single_Voigt(x-cen7,sigmaV7, gammaV7) +ampV8* Single_Voigt(x-cen8,sigmaV8, gammaV8) +\
+                   ampV9* Single_Voigt(x-cen9,sigmaV9, gammaV9)
+    
+    elif peaknum==8:
         def Voigt (x,expamp,expdec,a,b, cen1, ampV1,sigmaV1, gammaV1 , cen2, ampV2,sigmaV2, gammaV2 , cen3, ampV3,sigmaV3, gammaV3, cen4, ampV4,sigmaV4, gammaV4 , cen5, ampV5, sigmaV5, gammaV5, cen6, ampV6, sigmaV6, gammaV6 , cen7, ampV7, sigmaV7, gammaV7 , cen8, ampV8, sigmaV8, gammaV8):
             return expamp*exp(-x/expdec) + a*x +b +\
                    ampV1*  Single_Voigt(x-cen1,sigmaV1, gammaV1) + ampV2* Single_Voigt(x-cen2,sigmaV2, gammaV2) +ampV3* Single_Voigt(x-cen3,sigmaV3, gammaV3) +ampV4* Single_Voigt(x-cen4,sigmaV4, gammaV4) +\

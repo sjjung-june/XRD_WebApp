@@ -50,7 +50,8 @@ function handleSNSubmit(event) {
           data[key].Angle,
           data[key].Count,
           data[key].Peaks_Pos,
-          data[key].Peaks_Height
+          data[key].Peaks_Height,
+          data[key].Peaks_Id
         );
       });
 
@@ -68,15 +69,17 @@ function handleSNSubmit(event) {
   }
 }
 
-function plotData(SN, File, Angle, Count, Peaks_Pos, Peaks_Height) {
+function plotData(SN, File, Angle, Count, Peaks_Pos, Peaks_Height, Peaks_Id) {
   colors = [];
   sizes = [];
   for (var i = 0; i < Angle.length; i++) {
     colors.push("C1C1C1");
   }
-  let PLOT = document.getElementById(`${File}_plot`);
-  let SPAN = document.getElementById(`${File}_span`);
-  SPAN.innerHTML = File;
+  let NAME = document.getElementById(`${File}_file_name`);
+  let PLOT = document.getElementById(`${File}_plot_div`);
+  let PEAKS_DIV = document.getElementById(`${File}_peaks_div`);
+
+  NAME.innerHTML = `${File}`;
   var myPlot = PLOT,
     Angle,
     Count,
@@ -101,39 +104,64 @@ function plotData(SN, File, Angle, Count, Peaks_Pos, Peaks_Height) {
       colors = data.points[i].data.marker.color;
     }
 
-    if (colors[pn] != "#FF0000") {
-      colors[pn] = "#FF0000";
-      Peaks_Pos.push(Angle[pn].toPrecision(4));
-      Peaks_Height.push(Count[pn].toPrecision(4));
-    } else {
-      colors[pn] = "#C1C1C1";
-      Peaks_Pos = arrayRemove(Peaks_Pos, Angle[pn].toPrecision(4).toString());
-      Peaks_Height = arrayRemove(
-        Peaks_Height,
-        Count[pn].toPrecision(4).toString()
-      );
-    }
+    let POINT_ANGLE = Angle[pn].toPrecision(4).toString();
+    let POINT_COUNT = Count[pn].toPrecision(4).toString();
 
-    var update = { marker: { color: colors, size: 4 } };
-    Plotly.restyle(`${File}_plot`, update, [tn]);
-    SPAN.innerHTML = `${File} : ${Peaks_Pos}`;
+    PEAKS_DIV.innerHTML += `<div class="peaks_div_content" id=${File}_${POINT_ANGLE}_${POINT_COUNT} style="text-align:center"><input type="checkbox" class="peak_id_check" id=${File}_${POINT_ANGLE}_${POINT_COUNT}_check /><label> ${POINT_ANGLE} </label><button id=${File}_${POINT_ANGLE}_${POINT_COUNT}_btn class="peak_del_btn" style="margin:0 auto;">X</button></div>`;
+
+    Peaks_Pos.push(Angle[pn].toPrecision(4).toString());
+    Peaks_Height.push(Count[pn].toPrecision(4).toString());
+    Peaks_Id.push(false);
+
+    const peak_del_btns = document.querySelectorAll(".peak_del_btn");
+    const peak_id_checks = document.querySelectorAll(".peak_id_check");
+
+    peak_del_btns.forEach((peak_del_btn) => {
+      try {
+        peak_del_btn.removeEventListener("click", handleDel);
+      } finally {
+        peak_del_btn.addEventListener("click", handleDel);
+      }
+    });
+
+    peak_id_checks.forEach((peak_id_check) => {
+      try {
+        peak_id_check.removeEventListener("change", handleCheck);
+      } finally {
+        peak_id_check.addEventListener("change", handleCheck);
+      }
+    });
+
+    console.log(Peaks_Pos);
+    console.log(Peaks_Height);
+    console.log(Peaks_Id);
   });
 }
 
 function add(id) {
-  const span = document.createElement("span");
-  const div = document.createElement("div");
-  span.setAttribute("id", `${id}_span`);
-  div.setAttribute("id", `${id}_plot`);
-  document.getElementById("plots").appendChild(span);
-  document.getElementById("plots").appendChild(div);
+  const file_name = document.createElement("span");
+  const file_div = document.createElement("div");
+  const plot_div = document.createElement("div");
+  const peaks_div = document.createElement("div");
+
+  file_name.setAttribute("id", `${id}_file_name`);
+  file_div.setAttribute("id", `${id}_file_div`);
+  file_div.setAttribute("class", `file_div`);
+  plot_div.setAttribute("id", `${id}_plot_div`);
+  peaks_div.setAttribute("id", `${id}_peaks_div`);
+  peaks_div.setAttribute("class", `peaks_div`);
+
+  document.getElementById("plots").appendChild(file_name);
+  document.getElementById("plots").appendChild(file_div);
+  document.getElementById(`${id}_file_div`).appendChild(plot_div);
+  document.getElementById(`${id}_file_div`).appendChild(peaks_div);
 }
 
 function remove() {
   document.getElementById("plots").remove();
   const div = document.createElement("div");
   div.setAttribute("id", "plots");
-  div.setAttribute("style", "width: 1100px; height: 2000px");
+  div.setAttribute("style", "width: 800px; height: 2000px");
   document.getElementById("plots-parent").appendChild(div);
   submitInput.value = "";
 }
@@ -167,10 +195,12 @@ function handleModify(event) {
   Files = [];
   Peaks_Pos = [];
   Peaks_Height = [];
+  Peaks_Id = [];
 
   Object.keys(Data).forEach(function (key) {
     Peaks_Pos.push(Data[key].Peaks_Pos);
     Peaks_Height.push(Data[key].Peaks_Height);
+    Peaks_Id.push(Data[key].Peaks_Id);
     Files.push(key);
   });
 
@@ -181,9 +211,8 @@ function handleModify(event) {
     File: Files,
     Peaks_Pos: Peaks_Pos,
     Peaks_Height: Peaks_Height,
+    Peaks_Id: Peaks_Id,
   });
-
-  console.log(data);
 
   xhr.send(data);
   alert("결과가 전달되었습니다. 잠시만 기다려주세요.");
@@ -234,6 +263,43 @@ function handleChange() {
   });
 
   xhr.send(data);
+}
+
+function handleDel(event) {
+  event.path[1].remove();
+  const POS = event.target.id.split("_")[event.target.id.split("_").length - 3];
+  const Key = `${event.target.id.split("_")[0]}_${
+    event.target.id.split("_")[1]
+  }_${event.target.id.split("_")[2]}`;
+
+  const POS_idx = Data[Key].Peaks_Pos.indexOf(POS);
+
+  Data[Key].Peaks_Pos.splice(POS_idx, 1);
+  Data[Key].Peaks_Height.splice(POS_idx, 1);
+  Data[Key].Peaks_Id.splice(POS_idx, 1);
+
+  console.log(Data[Key].Peaks_Pos);
+  console.log(Data[Key].Peaks_Height);
+  console.log(Data[Key].Peaks_Id);
+}
+
+function handleCheck(event) {
+  const POS = event.target.id.split("_")[event.target.id.split("_").length - 3];
+  const Key = `${event.target.id.split("_")[0]}_${
+    event.target.id.split("_")[1]
+  }_${event.target.id.split("_")[2]}`;
+
+  const POS_idx = Data[Key].Peaks_Pos.indexOf(POS);
+
+  if (Data[Key].Peaks_Id[POS_idx]) {
+    Data[Key].Peaks_Id[POS_idx] = false;
+  } else {
+    Data[Key].Peaks_Id[POS_idx] = true;
+  }
+
+  console.log(Data[Key].Peaks_Pos);
+  console.log(Data[Key].Peaks_Height);
+  console.log(Data[Key].Peaks_Id);
 }
 
 submitForm.addEventListener("submit", handleSNSubmit);

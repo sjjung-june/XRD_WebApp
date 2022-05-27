@@ -1,0 +1,67 @@
+* {
+  margin: 0px;
+}
+
+h1,
+form,
+#plots {
+  margin: 8px;
+}
+
+#year-input,
+#month-input,
+#submit-input {
+  border: none;
+  border-bottom: 1px solid black;
+  text-align: center;
+}
+
+#modify-button {
+  position: fixed;
+  right: 100px;
+  bottom: 20px;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.loading {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  cursor: progress;
+}
+
+.file_div {
+  display: flex;
+  width: 100vw;
+  justify-content: left;
+  align-items: center;
+  border-bottom: 1px solid black;
+}
+
+.peaks_div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.peak_del_btn {
+  color: tomato;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.peaks_div_content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.peaks_div_content > label {
+  margin: 10px;
+}

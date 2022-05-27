@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
-      href="{{ url_for('static', filename='styles.css') }}"
+      href="{{ url_for('static', filename='xrd_styles.css') }}"
       rel="stylesheet"
     />
     <link href="{{ url_for('static', filename='favicon.ico') }}" rel="icon" />
@@ -38,22 +38,23 @@
           <option value="{{SN}}"></option>
           {% endfor %}
         </datalist>
-        <button id="submit-button" type="submit" role="button">Submit</button>
-        <button id="reset-button" role="button">Reset</button>
+        <button id="submit-button" type="submit" role="button">확인</button>
+        <button id="reset-button" role="button">초기화</button>
       </form>
     </div>
 
     <datalist id="file-browsers"> </datalist>
 
     <div id="plots-parent">
-      <div id="plots" style="width: 1100px; height: 2000px"></div>
+      <div id="plots" style="width: 800px; height: 2000px"></div>
     </div>
+
     <div id="modify-div">
       <button id="modify-button" class="hidden" type="submit" role="button">
-        File Modify
+        선택 완료
       </button>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='xrd_script.js') }}"></script>
   </body>
 </html>
