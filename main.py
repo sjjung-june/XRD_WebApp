@@ -77,8 +77,9 @@ def calc():
     if Err_Return != "":
         return Err_Return 
     
-    result = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height, peak_id)
-    result.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\Grain_Size.csv',index=False)
+    result_scher, result_hald = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height, peak_id)
+    result_scher.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\Scherrer_Method.csv',index=False)
+    result_hald.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\HalderWagner_Method.csv',index=False)
     return "Grain Size 계산 완료" 
     
 app.run(host="10.138.126.181")

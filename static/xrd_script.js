@@ -215,6 +215,7 @@ function handleModify(event) {
   });
 
   xhr.send(data);
+  console.log(data);
   alert("결과가 전달되었습니다. 잠시만 기다려주세요.");
 }
 

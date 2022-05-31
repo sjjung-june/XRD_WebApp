@@ -14,7 +14,8 @@ wavelength=1.54059
 
 
 def grain_size(SN, Year, Month, File_List, Peak_Pos, Peak_Height, Peak_Id):    
-    df_result = pd.DataFrame(columns=["File","FWHM","Grain Size","Peak"])   
+    df_result_scher = pd.DataFrame(columns=["File","FWHM","Grain Size","Peak"])   
+    df_result_hald = pd.DataFrame(columns=["File","Grain Size"])
     PATH = rf'\\10.138.112.112\Analysis Results\XRD\1_XRD\{Year}\{Month}\{SN}'
     try:
         os.mkdir(f'{PATH}\Result')
@@ -93,10 +94,13 @@ def grain_size(SN, Year, Month, File_List, Peak_Pos, Peak_Height, Peak_Id):
         pl.plot(xs,z[0]*np.asarray(xs)+z[1], color="blue")
         pl.savefig(f'{result_PATH}\{File_List[idx]}_Halder_Wagner.png')
         pl.clf()
+                
+        result_scher = {"File": File_List[idx], "FWHM" : halfwidths, "Grain Size" : grains, "Peak": Pos[Id].tolist()}       
+        result_hald = {"File": File_List[idx], "Grain Size" : K1*wavelength/z[0]}       
+                
+        df_scher = pd.DataFrame(result_scher)
+        df_hald = pd.DataFrame(result_hald, index=[0])
+        df_result_scher = pd.concat([df_result_scher,df_scher])        
+        df_result_hald = pd.concat([df_result_hald,df_hald])        
         
-        result = {"File": File_List[idx], "FWHM" : halfwidths, "Grain Size" : grains, "Peak": Pos[Id].tolist()}
-        
-        df = pd.DataFrame(result)
-        df_result = pd.concat([df_result,df])        
-        
-    return df_result
+    return df_result_scher, df_result_hald
