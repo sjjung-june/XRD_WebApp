@@ -1,4 +1,4 @@
-const DEFAULT_URL = "http://10.138.126.181:5000";
+const DEFAULT_URL = "http://10.138.126.152:5000";
 const submitForm = document.querySelector("#submit-form");
 const yearInput = document.querySelector("#year-input");
 const monthInput = document.querySelector("#month-input");
@@ -27,8 +27,8 @@ function getDate() {
   }
 }
 
-function handleSNSubmit(event) {
-  event.preventDefault();
+function handleSNSubmit(event) {  
+  event.preventDefault();  
 
   if (submitInput.value != "") {
     STATUS.classList.toggle("loading");
@@ -221,7 +221,11 @@ function handleModify(event) {
 
 function handleReset() {
   remove();
-  modify_btn.classList.toggle("hidden");
+  if (modify_btn.classList.contains("hidden")){    
+  }else{
+    modify_btn.classList.toggle("hidden")
+  }
+  
 }
 
 function yearInit() {

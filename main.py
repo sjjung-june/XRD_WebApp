@@ -1,3 +1,4 @@
+from inspect import ArgInfo
 from flask import Flask, request, render_template
 #import modules.inxrd_noqt, modules.outxrd_noqt
 import os
@@ -7,14 +8,15 @@ import pandas as pd
 from modules.calc import grain_size
 from datetime import date
 
-CURR_YEAR, CURR_MONTH, CURR_DATE = date.today().strftime('%Y-%m-%d').split('-')
+
 
 #DEFAULT_PATH = rf"\\10.138.112.112\Analysis Results\XRD\1_XRD\{YEAR}\{MONTH:02}"
 DEFAULT_PATH = rf"\\10.138.112.112\Analysis Results\XRD\1_XRD"
 app = Flask("XRD Grain Size")
 
 @app.route('/')
-def root(Year_List = None, Month_List = None, SN_List = None):        
+def root(Year_List = None, Month_List = None, SN_List = None):      
+    CURR_YEAR, CURR_MONTH, CURR_DATE = date.today().strftime('%Y-%m-%d').split('-')  
     Year_List = [Year for Year in os.listdir(DEFAULT_PATH) if os.path.isdir(os.path.join(DEFAULT_PATH,Year)) and 'JCPDS' not in Year]
     Month_List = [Month for Month in os.listdir(f'{DEFAULT_PATH}\{CURR_YEAR}')]
     SN_List = [SN for SN in os.listdir(f'{DEFAULT_PATH}\{CURR_YEAR}\{CURR_MONTH}')]
@@ -82,4 +84,4 @@ def calc():
     result_hald.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\HalderWagner_Method.csv',index=False)
     return "Grain Size 계산 완료" 
     
-app.run(host="10.138.126.181")
+app.run(host="10.138.126.152")
