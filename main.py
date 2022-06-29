@@ -70,7 +70,21 @@ def calc():
     peak_pos = calc_query["Peaks_Pos"]
     peak_height = calc_query["Peaks_Height"]
     peak_id = calc_query["Peaks_Id"]
+    peak_check = []
     
+    for peak in peak_id:
+        if len(peak) != 0:
+            peak_check.append(True)
+        else:
+            peak_check.append(False)
+
+    file_list = np.array(file_list)[peak_check].tolist()
+    peak_pos = np.array(peak_pos)[peak_check].tolist()
+    peak_height = np.array(peak_height)[peak_check].tolist()
+    peak_id = np.array(peak_id)[peak_check].tolist()
+    
+        
+    '''
     Err_Return = ''
     for i in range(len(peak_id)):        
         if len(np.array(peak_id)[i][np.array(peak_id)[i]==True])<3:
@@ -78,10 +92,12 @@ def calc():
         
     if Err_Return != "":
         return Err_Return 
+    '''
     
     result_scher, result_hald = grain_size(SN_Query, Year_Query, Month_Query, file_list, peak_pos, peak_height, peak_id)
     result_scher.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\Scherrer_Method.csv',index=False)
     result_hald.to_csv(f'{DEFAULT_PATH}\{Year_Query}\{Month_Query}\{SN_Query}\Result\HalderWagner_Method.csv',index=False)
+    
     return "Grain Size 계산 완료" 
     
-app.run(host="10.138.126.152")
+app.run(host="10.138.126.181")
